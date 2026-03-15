@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { getStaticApps } from "@/data/apps";
 import { AppIcon } from "./app-icon";
 import { SearchBar } from "./search-bar";
 import { BottomNav } from "./bottom-nav";
+
+const MotionLink = motion.create(Link);
 
 export function MobileGrid() {
   const [search, setSearch] = useState("");
@@ -62,11 +65,9 @@ export function MobileGrid() {
           {filtered
             .sort((a, b) => a.order - b.order)
             .map((app, i) => (
-              <motion.a
+              <MotionLink
                 key={app.id}
-                href={`https://${app.subdomain}.warmwetcircles.com`}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/app/${app.id}`}
                 className="flex flex-col items-center gap-2 cursor-pointer no-underline"
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}
@@ -77,7 +78,7 @@ export function MobileGrid() {
                 <span className="text-xs font-medium text-slate-600 text-center max-w-[72px] truncate">
                   {app.name}
                 </span>
-              </motion.a>
+              </MotionLink>
             ))}
         </div>
       </main>

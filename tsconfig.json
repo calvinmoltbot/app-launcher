@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "modern-dashboard", "playground"]
+  "exclude": ["node_modules", "modern-dashboard", "playground", "taskflow-pro---app-details"]
 }

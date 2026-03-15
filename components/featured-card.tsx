@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { App } from "@/data/apps";
 
 interface FeaturedCardProps {
@@ -6,10 +7,8 @@ interface FeaturedCardProps {
 
 export function FeaturedCard({ app }: FeaturedCardProps) {
   return (
-    <a
-      href={`https://${app.subdomain}.warmwetcircles.com`}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/app/${app.id}`}
       className="block relative overflow-hidden rounded-3xl border border-[rgba(99,102,241,0.3)] bg-gradient-to-br from-[rgba(99,102,241,0.2)] to-[rgba(168,85,247,0.2)] p-6 mb-6 no-underline"
     >
       {/* Glow orb */}
@@ -25,9 +24,9 @@ export function FeaturedCard({ app }: FeaturedCardProps) {
           {app.description}
         </div>
         <span className="inline-flex items-center gap-1.5 bg-[#6366f1] text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
-          Open App →
+          View Details →
         </span>
       </div>
-    </a>
+    </Link>
   );
 }

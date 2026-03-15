@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { getStaticApps } from "@/data/apps";
 import { FilterTabs, type FilterTab } from "./filter-tabs";
@@ -74,11 +75,9 @@ export function DesktopCards() {
 
         <div className="space-y-3.5">
           {filtered.map((app) => (
-            <a
+            <Link
               key={app.id}
-              href={`https://${app.subdomain}.warmwetcircles.com`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/app/${app.id}`}
               className="group flex items-center gap-4 rounded-[20px] border border-white/[0.08] bg-[#1a1a1e] p-5 no-underline transition-all duration-250 hover:bg-[#222226] active:scale-[0.98] relative overflow-hidden"
             >
               {/* Left accent bar */}
@@ -129,7 +128,7 @@ export function DesktopCards() {
               </div>
 
               <ChevronRight className="w-5 h-5 text-white/30 shrink-0 group-hover:text-white/50 transition-colors" />
-            </a>
+            </Link>
           ))}
         </div>
       </div>
