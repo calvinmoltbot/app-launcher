@@ -13,6 +13,10 @@ export async function getApps(): Promise<App[]> {
     return getStaticApps();
   }
 
+  // Filter out API backends and non-user-facing services
+  const hidden = new Set(["sprout-api"]);
+  const visible = discovered.filter((d) => !hidden.has(d.subdomain));
+
   const overrides = getAppOverrides();
   const maxStaticOrder = Math.max(
     ...Array.from(overrides.values()).map((o) => o.order ?? 0)
@@ -20,7 +24,7 @@ export async function getApps(): Promise<App[]> {
 
   let autoOrder = maxStaticOrder + 1;
 
-  const apps: App[] = discovered.map((d) => {
+  const apps: App[] = visible.map((d) => {
     const override = overrides.get(d.subdomain);
 
     if (override) {
