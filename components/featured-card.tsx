@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { App } from "@/data/apps";
+import { AppIcon } from "./app-icon";
 
 interface FeaturedCardProps {
   app: App;
@@ -9,22 +10,24 @@ export function FeaturedCard({ app }: FeaturedCardProps) {
   return (
     <Link
       href={`/app/${app.id}`}
-      className="block relative overflow-hidden rounded-3xl border border-[rgba(99,102,241,0.3)] bg-gradient-to-br from-[rgba(99,102,241,0.2)] to-[rgba(168,85,247,0.2)] p-6 mb-6 no-underline"
+      className="block relative overflow-hidden rounded-2xl border border-[#0F49BD]/10 bg-gradient-to-br from-[#0F49BD]/10 to-[#7C3AED]/10 p-5 mb-6 no-underline"
     >
-      {/* Glow orb */}
-      <div className="absolute -top-1/2 -right-[30%] w-[200px] h-[200px] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.3)_0%,transparent_70%)]" />
-      <div className="relative z-[1]">
-        <div className="text-[11px] font-bold text-[#a78bfa] uppercase tracking-[1.5px] mb-2">
-          ★ Pinned
+      <div className="absolute -top-1/2 -right-[30%] w-[200px] h-[200px] rounded-full bg-[radial-gradient(circle,rgba(15,73,189,0.15)_0%,transparent_70%)]" />
+      <div className="relative z-[1] flex items-center gap-4">
+        <AppIcon iconName={app.icon} color={app.color} size="lg" showBadge={false} />
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold text-[#0F49BD] uppercase tracking-[1.5px] mb-1">
+            ★ Pinned
+          </div>
+          <div className="text-lg font-bold tracking-tight text-slate-900">
+            {app.name}
+          </div>
+          <div className="text-sm text-slate-500 leading-snug">
+            {app.description}
+          </div>
         </div>
-        <div className="text-2xl font-extrabold tracking-tight text-white mb-1.5">
-          {app.name}
-        </div>
-        <div className="text-sm text-white/50 leading-snug mb-4">
-          {app.description}
-        </div>
-        <span className="inline-flex items-center gap-1.5 bg-[#6366f1] text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
-          View Details →
+        <span className="shrink-0 inline-flex items-center gap-1.5 bg-[#0F49BD] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-[#0F49BD]/20">
+          View →
         </span>
       </div>
     </Link>
