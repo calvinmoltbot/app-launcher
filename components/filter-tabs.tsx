@@ -5,6 +5,7 @@ export type FilterTab = "all" | "live" | "dev";
 interface FilterTabsProps {
   active: FilterTab;
   onChange: (tab: FilterTab) => void;
+  counts?: { all: number; live: number; dev: number };
 }
 
 const tabs: { key: FilterTab; label: string }[] = [
@@ -13,20 +14,25 @@ const tabs: { key: FilterTab; label: string }[] = [
   { key: "dev", label: "Dev" },
 ];
 
-export function FilterTabs({ active, onChange }: FilterTabsProps) {
+export function FilterTabs({ active, onChange, counts }: FilterTabsProps) {
   return (
-    <div className="flex gap-1 p-1 rounded-xl bg-slate-200/50">
+    <div className="flex gap-1 p-1 rounded-[10px] bg-black/[0.04]">
       {tabs.map((tab) => (
         <button
           key={tab.key}
           onClick={() => onChange(tab.key)}
-          className={`flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-[10px] transition-all duration-250 border-none cursor-pointer ${
+          className={`relative flex-1 px-4 py-[7px] text-[13px] font-medium rounded-[8px] transition-all duration-200 border-none cursor-pointer ${
             active === tab.key
-              ? "bg-[#0F49BD] text-white shadow-[0_2px_12px_rgba(15,73,189,0.3)]"
-              : "text-slate-500 bg-transparent hover:text-slate-700"
+              ? "bg-white shadow-sm text-[#1D1D1F]"
+              : "bg-transparent text-[#6E6E73]"
           }`}
         >
           {tab.label}
+          {counts && (
+            <span className="ml-1 text-[#AEAEB2]">
+              ({counts[tab.key]})
+            </span>
+          )}
         </button>
       ))}
     </div>

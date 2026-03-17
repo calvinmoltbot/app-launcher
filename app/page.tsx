@@ -1,5 +1,5 @@
-import { MobileGrid } from "@/components/mobile-grid";
+import { AppLauncher } from "@/components/app-launcher";
 
 export default function Home() {
-  return <MobileGrid />;
+  return <AppLauncher />;
 }

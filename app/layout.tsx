@@ -41,7 +41,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased bg-[#F6F6F8] text-slate-900`}
+        className={`${inter.variable} font-sans antialiased bg-bg text-text-primary`}
       >
         {children}
         <script

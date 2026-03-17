@@ -10,15 +10,15 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <div className="relative group">
-      <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-        <Search className="w-5 h-5 text-slate-400 group-focus-within:text-[#0F49BD] transition-colors" />
+      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+        <Search className="w-[17px] h-[17px] text-[#AEAEB2] group-focus-within:text-[#007AFF] transition-colors" />
       </div>
       <input
         type="text"
-        placeholder="Search apps..."
+        placeholder="Search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-[#0F49BD]/20 focus:border-[#0F49BD] outline-none transition-all placeholder:text-slate-400 text-slate-700"
+        className="w-full bg-black/[0.04] border-none rounded-[10px] py-2.5 pl-9 pr-4 text-[17px] outline-none transition-all placeholder:text-[#AEAEB2] text-[#1D1D1F] focus:bg-black/[0.06]"
       />
     </div>
   );

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Central hub for warmwetcircles.com apps",
     start_url: "/",
     display: "standalone",
-    background_color: "#000000",
-    theme_color: "#000000",
+    background_color: "#F5F5F7",
+    theme_color: "#F5F5F7",
     icons: [
       {
         src: "/icons/icon-192.png",
