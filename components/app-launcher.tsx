@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronRight, Pin, RefreshCw } from "lucide-react";
+import { Pin, RefreshCw } from "lucide-react";
 import { getStaticApps } from "@/data/apps";
 import type { App } from "@/data/apps";
 import { AppIcon } from "./app-icon";
@@ -10,34 +10,56 @@ import { SearchBar } from "./search-bar";
 import { BottomNav } from "./bottom-nav";
 import { FilterTabs, type FilterTab } from "./filter-tabs";
 
-function DesktopRow({ app }: { app: App }) {
-  const appUrl = `https://${app.subdomain}.warmwetcircles.com`;
+type CategoryFilter = "all" | "creative" | "data" | "productivity" | "tools";
+
+const categoryLabels: { key: CategoryFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "creative", label: "Creative" },
+  { key: "data", label: "Data" },
+  { key: "productivity", label: "Productivity" },
+  { key: "tools", label: "Tools" },
+];
+
+function BentoCard({ app }: { app: App }) {
+  const isPinned = app.pinned;
   return (
     <Link
       href={`/app/${app.id}`}
-      className="flex items-center gap-4 px-4 py-3 hover:bg-black/[0.02] transition-colors no-underline group"
+      className={`group relative flex flex-col justify-between bg-white rounded-[16px] p-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${
+        isPinned ? "col-span-2 min-h-[140px]" : "min-h-[120px]"
+      }`}
     >
-      <AppIcon iconName={app.icon} color={app.color} size="md" />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-[17px] text-[#1D1D1F] font-normal">
+      {/* Status dot */}
+      <div
+        className={`absolute top-3 right-3 w-[6px] h-[6px] rounded-full ${
+          app.status === "live" ? "bg-[#34C759]" : "bg-[#FF9500]"
+        }`}
+      />
+
+      {/* Icon */}
+      <AppIcon
+        iconName={app.icon}
+        color={app.color}
+        size={isPinned ? "lg" : "md"}
+      />
+
+      {/* Info */}
+      <div className="mt-auto pt-3">
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`font-semibold text-[#1D1D1F] leading-tight ${
+              isPinned ? "text-[17px]" : "text-[14px]"
+            }`}
+          >
             {app.name}
           </span>
-          {app.pinned && (
-            <Pin className="w-3 h-3 text-[#AEAEB2] fill-current" />
+          {isPinned && (
+            <Pin className="w-3 h-3 text-[#AEAEB2] fill-current shrink-0" />
           )}
         </div>
-        <span className="text-[13px] text-[#6E6E73] leading-tight line-clamp-1">
+        <span className="text-[11px] text-[#6E6E73] leading-tight line-clamp-1 mt-0.5 block">
           {app.description}
         </span>
-      </div>
-      <div className="flex items-center gap-3 shrink-0">
-        <div
-          className={`w-2 h-2 rounded-full ${
-            app.status === "live" ? "bg-[#34C759]" : "bg-[#FF9500]"
-          }`}
-        />
-        <ChevronRight className="w-4 h-4 text-[#AEAEB2] group-hover:text-[#6E6E73] transition-colors" />
       </div>
     </Link>
   );
@@ -48,6 +70,7 @@ const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 export function AppLauncher() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [category, setCategory] = useState<CategoryFilter>("all");
   const [apps, setApps] = useState<App[]>(() => getStaticApps());
   const [syncing, setSyncing] = useState(false);
 
@@ -73,11 +96,14 @@ export function AppLauncher() {
     return () => clearInterval(id);
   }, [syncApps]);
 
-  const counts = useMemo(() => ({
-    all: apps.length,
-    live: apps.filter((a) => a.status === "live").length,
-    dev: apps.filter((a) => a.status === "dev").length,
-  }), [apps]);
+  const counts = useMemo(
+    () => ({
+      all: apps.length,
+      live: apps.filter((a) => a.status === "live").length,
+      dev: apps.filter((a) => a.status === "dev").length,
+    }),
+    [apps]
+  );
 
   const filtered = useMemo(() => {
     let list = [...apps];
@@ -92,6 +118,9 @@ export function AppLauncher() {
     if (filter !== "all") {
       list = list.filter((a) => a.status === filter);
     }
+    if (category !== "all") {
+      list = list.filter((a) => a.category === category);
+    }
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -101,7 +130,7 @@ export function AppLauncher() {
       );
     }
     return list;
-  }, [search, filter, apps]);
+  }, [search, filter, category, apps]);
 
   const now = new Date();
   const dateLine = now.toLocaleDateString("en-US", {
@@ -114,7 +143,7 @@ export function AppLauncher() {
     <div className="flex flex-col min-h-dvh bg-bg">
       {/* Header */}
       <header className="px-6 pt-8 pb-2 sticky top-0 z-10 bg-bg/80 backdrop-blur-md">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-5xl mx-auto md:max-w-5xl">
           {/* Mobile header */}
           <div className="md:hidden space-y-1 mb-4">
             <div className="flex items-center justify-between">
@@ -127,16 +156,16 @@ export function AppLauncher() {
                 className="p-2 rounded-full hover:bg-black/[0.04] transition-colors disabled:opacity-40"
                 title="Refresh apps from Vercel"
               >
-                <RefreshCw className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
-            <p className="text-[13px] text-text-secondary">
-              {dateLine}
-            </p>
+            <p className="text-[13px] text-text-secondary">{dateLine}</p>
           </div>
 
           {/* Desktop header */}
-          <div className="hidden md:flex items-baseline justify-between mb-6">
+          <div className="hidden md:flex items-baseline justify-between mb-4">
             <div className="flex items-center gap-3">
               <h1 className="text-[34px] font-semibold tracking-tight text-text-primary">
                 Apps
@@ -147,7 +176,9 @@ export function AppLauncher() {
                 className="p-1.5 rounded-full hover:bg-black/[0.04] transition-colors disabled:opacity-40"
                 title="Refresh apps from Vercel"
               >
-                <RefreshCw className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
             <div className="w-64">
@@ -165,10 +196,30 @@ export function AppLauncher() {
         </div>
       </section>
 
-      {/* Desktop: Filters */}
-      <section className="hidden md:block px-6 pb-2">
-        <div className="max-w-2xl mx-auto">
+      {/* Desktop: Filter bar */}
+      <section className="hidden md:block px-6 pb-4">
+        <div className="max-w-5xl mx-auto flex items-center gap-3">
+          {/* Status filters */}
           <FilterTabs active={filter} onChange={setFilter} counts={counts} />
+
+          <div className="w-px h-6 bg-black/[0.08]" />
+
+          {/* Category pills */}
+          <div className="flex gap-1.5">
+            {categoryLabels.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setCategory(cat.key)}
+                className={`px-3 py-[5px] text-[13px] font-medium rounded-full transition-all border-none cursor-pointer ${
+                  category === cat.key
+                    ? "bg-[#1D1D1F] text-white"
+                    : "bg-black/[0.04] text-[#6E6E73] hover:bg-black/[0.08]"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -192,12 +243,12 @@ export function AppLauncher() {
         </div>
       </main>
 
-      {/* Desktop: Settings-style list */}
+      {/* Desktop: Bento Grid */}
       <main className="flex-1 px-6 py-2 hidden md:block">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-[12px] overflow-hidden divide-y divide-[rgba(0,0,0,0.06)]">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-5 gap-3">
             {filtered.map((app) => (
-              <DesktopRow key={app.id} app={app} />
+              <BentoCard key={app.id} app={app} />
             ))}
           </div>
         </div>
