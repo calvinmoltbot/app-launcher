@@ -1,0 +1,23 @@
+{
+  "$schema": "launcher-meta/v1",
+  "name": "App Launcher",
+  "description": "Home base for all apps",
+  "icon": "LayoutGrid",
+  "color": "indigo",
+  "category": "tools",
+  "pinned": false,
+  "longDescription": "Central hub for discovering and launching all apps in the warmwetcircles.com ecosystem. Features a bento grid layout with live Vercel sync, category filters, search, and auto-discovery of new deployments.",
+  "features": [
+    "Bento grid desktop layout with pinned apps",
+    "Live sync from Vercel API every 5 minutes",
+    "Filter by status (live/dev) and category",
+    "Search across app names and descriptions",
+    "App detail pages with extended metadata",
+    "Auto-discovers new deployments via .launcher.json"
+  ],
+  "techStack": ["Next.js 16", "React 19", "Tailwind CSS 4", "Framer Motion", "Lucide Icons"],
+  "screenshots": [],
+  "repo": "calvinmoltbot/app-launcher",
+  "envVars": ["VERCEL_TOKEN", "VERCEL_TEAMS_ID"],
+  "dependencies": ["Vercel"]
+}
