@@ -1,8 +1,26 @@
+export interface LauncherManifest {
+  $schema?: string;
+  name?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  category?: "creative" | "data" | "productivity" | "tools";
+  pinned?: boolean;
+  longDescription?: string;
+  features?: string[];
+  techStack?: string[];
+  screenshots?: string[];
+  repo?: string;
+  envVars?: string[];
+  dependencies?: string[];
+}
+
 export interface DiscoveredApp {
   subdomain: string;
   projectName: string;
   projectId: string;
   status: "live" | "dev";
+  manifest?: LauncherManifest;
 }
 
 const VERCEL_API = "https://api.vercel.com";
@@ -12,6 +30,7 @@ let cachedResult: { data: DiscoveredApp[]; timestamp: number } | null = null;
 
 /**
  * Discover all projects deployed to *.warmwetcircles.com via the Vercel API.
+ * Fetches .launcher.json from each app for rich metadata.
  * Results are cached in memory for 5 minutes.
  * Returns an empty array on any failure.
  */
@@ -79,16 +98,42 @@ async function fetchAllApps(
     }
 
     // Handle pagination
-    if (
-      !body.pagination?.next ||
-      body.projects.length < limit
-    ) {
+    if (!body.pagination?.next || body.projects.length < limit) {
       break;
     }
     nextTimestamp = body.pagination.next;
   }
 
+  // Fetch .launcher.json manifests in parallel for all discovered apps
+  const manifestChecks = discovered.map(async (app) => {
+    app.manifest = await fetchManifest(app.subdomain);
+    return app;
+  });
+  await Promise.all(manifestChecks);
+
   return discovered;
+}
+
+/**
+ * Fetch .launcher.json from a deployed app.
+ * Returns undefined if not found or on any error.
+ */
+async function fetchManifest(
+  subdomain: string
+): Promise<LauncherManifest | undefined> {
+  try {
+    const url = `https://${subdomain}.warmwetcircles.com/.launcher.json`;
+    const res = await fetch(url, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return undefined;
+    const data = await res.json();
+    if (data && typeof data === "object" && data.name) return data;
+    return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function getWarmwetcirclesSubdomain(

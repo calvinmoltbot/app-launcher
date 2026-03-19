@@ -2,8 +2,10 @@ import { type App, getAppOverrides, getStaticApps } from "@/data/apps";
 import { discoverVercelApps } from "@/lib/vercel";
 
 /**
- * Fetch apps from Vercel API, merge with static overrides, and return
- * the final sorted list. Falls back to static data on failure.
+ * Fetch apps from Vercel API, merge with .launcher.json manifests and
+ * static overrides, and return the final sorted list.
+ * Priority: .launcher.json > static overrides > auto-generated defaults.
+ * Falls back to static data on failure.
  */
 export async function getApps(): Promise<App[]> {
   const discovered = await discoverVercelApps();
@@ -25,37 +27,41 @@ export async function getApps(): Promise<App[]> {
   let autoOrder = maxStaticOrder + 1;
 
   const apps: App[] = visible.map((d) => {
+    const manifest = d.manifest;
     const override = overrides.get(d.subdomain);
 
-    if (override) {
-      return {
-        id: override.id ?? d.projectName,
-        name: override.name ?? formatName(d.projectName),
-        description: override.description ?? "",
-        subdomain: d.subdomain,
-        icon: override.icon ?? "Box",
-        color: override.color ?? "slate",
-        status: override.status ?? d.status,
-        category: override.category ?? "tools",
-        pinned: override.pinned ?? false,
-        order: override.order ?? autoOrder++,
-        discovered: true,
-      };
-    }
+    // Manifest fields take priority, then overrides, then defaults
+    const name =
+      manifest?.name ?? override?.name ?? formatName(d.projectName);
+    const description =
+      manifest?.description ?? override?.description ?? "";
+    const icon = manifest?.icon ?? override?.icon ?? "Box";
+    const color = manifest?.color ?? override?.color ?? "slate";
+    const category =
+      manifest?.category ?? override?.category ?? "tools";
+    const pinned = manifest?.pinned ?? override?.pinned ?? false;
+    const order = override?.order ?? autoOrder++;
 
-    // Unknown app — sensible defaults
     return {
-      id: d.projectName,
-      name: formatName(d.projectName),
-      description: `${d.subdomain}.warmwetcircles.com`,
+      id: override?.id ?? d.projectName,
+      name,
+      description,
       subdomain: d.subdomain,
-      icon: "Box",
-      color: "slate",
-      status: d.status,
-      category: "tools" as const,
-      pinned: false,
-      order: autoOrder++,
+      icon,
+      color,
+      status: override?.status ?? d.status,
+      category,
+      pinned,
+      order,
       discovered: true,
+      // Extended fields from manifest
+      longDescription: manifest?.longDescription,
+      features: manifest?.features,
+      techStack: manifest?.techStack,
+      screenshots: manifest?.screenshots,
+      repo: manifest?.repo,
+      envVars: manifest?.envVars,
+      dependencies: manifest?.dependencies,
     };
   });
 

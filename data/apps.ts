@@ -10,6 +10,14 @@ export interface App {
   pinned: boolean;
   order: number;
   discovered?: boolean;
+  // Extended fields from .launcher.json
+  longDescription?: string;
+  features?: string[];
+  techStack?: string[];
+  screenshots?: string[];
+  repo?: string;
+  envVars?: string[];
+  dependencies?: string[];
 }
 
 /** Static overrides for known apps — keyed by subdomain */
