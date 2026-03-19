@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ChevronRight, Pin } from "lucide-react";
+import { ChevronRight, Pin, RefreshCw } from "lucide-react";
 import { getStaticApps } from "@/data/apps";
 import type { App } from "@/data/apps";
 import { AppIcon } from "./app-icon";
@@ -43,11 +43,35 @@ function DesktopRow({ app }: { app: App }) {
   );
 }
 
+const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
 export function AppLauncher() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [apps, setApps] = useState<App[]>(() => getStaticApps());
+  const [syncing, setSyncing] = useState(false);
 
-  const apps = useMemo(() => getStaticApps(), []);
+  const syncApps = useCallback(async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/sync");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.apps?.length) setApps(data.apps);
+      }
+    } catch {
+      // keep existing apps on failure
+    } finally {
+      setSyncing(false);
+    }
+  }, []);
+
+  // Fetch on mount + poll every 5 minutes
+  useEffect(() => {
+    syncApps();
+    const id = setInterval(syncApps, SYNC_INTERVAL);
+    return () => clearInterval(id);
+  }, [syncApps]);
 
   const counts = useMemo(() => ({
     all: apps.length,
@@ -93,9 +117,19 @@ export function AppLauncher() {
         <div className="max-w-2xl mx-auto">
           {/* Mobile header */}
           <div className="md:hidden space-y-1 mb-4">
-            <h1 className="text-[34px] font-semibold tracking-tight text-text-primary">
-              Apps
-            </h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-[34px] font-semibold tracking-tight text-text-primary">
+                Apps
+              </h1>
+              <button
+                onClick={syncApps}
+                disabled={syncing}
+                className="p-2 rounded-full hover:bg-black/[0.04] transition-colors disabled:opacity-40"
+                title="Refresh apps from Vercel"
+              >
+                <RefreshCw className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`} />
+              </button>
+            </div>
             <p className="text-[13px] text-text-secondary">
               {dateLine}
             </p>
@@ -103,9 +137,19 @@ export function AppLauncher() {
 
           {/* Desktop header */}
           <div className="hidden md:flex items-baseline justify-between mb-6">
-            <h1 className="text-[34px] font-semibold tracking-tight text-text-primary">
-              Apps
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-[34px] font-semibold tracking-tight text-text-primary">
+                Apps
+              </h1>
+              <button
+                onClick={syncApps}
+                disabled={syncing}
+                className="p-1.5 rounded-full hover:bg-black/[0.04] transition-colors disabled:opacity-40"
+                title="Refresh apps from Vercel"
+              >
+                <RefreshCw className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`} />
+              </button>
+            </div>
             <div className="w-64">
               <SearchBar value={search} onChange={setSearch} />
             </div>
