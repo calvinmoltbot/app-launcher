@@ -11,13 +11,13 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   return (
-    <nav className="sticky bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-[rgba(0,0,0,0.06)] px-6 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)] z-10 md:hidden">
+    <nav className="sticky bottom-0 w-full glass-panel border-t border-surface-container px-6 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)] z-10 md:hidden">
       <div className="max-w-md mx-auto flex justify-between items-center">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}
             className={`flex flex-col items-center gap-0.5 transition-colors ${
-              item.active ? "text-[#007AFF]" : "text-[#AEAEB2]"
+              item.active ? "text-primary" : "text-text-muted"
             }`}
           >
             <item.icon className="w-6 h-6" strokeWidth={1.5} />

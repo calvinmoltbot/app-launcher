@@ -25,14 +25,14 @@ function BentoCard({ app }: { app: App }) {
   return (
     <Link
       href={`/app/${app.id}`}
-      className={`group relative flex flex-col justify-between bg-white rounded-[16px] p-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${
+      className={`group relative flex flex-col justify-between bg-surface-container-lowest rounded-[16px] p-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${
         isPinned ? "col-span-2 min-h-[140px]" : "min-h-[120px]"
       }`}
     >
       {/* Status dot */}
       <div
         className={`absolute top-3 right-3 w-[6px] h-[6px] rounded-full ${
-          app.status === "live" ? "bg-[#34C759]" : "bg-[#FF9500]"
+          app.status === "live" ? "bg-semantic-live" : "bg-semantic-dev"
         }`}
       />
 
@@ -47,17 +47,17 @@ function BentoCard({ app }: { app: App }) {
       <div className="mt-auto pt-3">
         <div className="flex items-center gap-1.5">
           <span
-            className={`font-semibold text-[#1D1D1F] leading-tight ${
+            className={`font-semibold text-text-primary leading-tight ${
               isPinned ? "text-[17px]" : "text-[14px]"
             }`}
           >
             {app.name}
           </span>
           {isPinned && (
-            <Pin className="w-3 h-3 text-[#AEAEB2] fill-current shrink-0" />
+            <Pin className="w-3 h-3 text-text-muted fill-current shrink-0" />
           )}
         </div>
-        <span className="text-[11px] text-[#6E6E73] leading-tight line-clamp-1 mt-0.5 block">
+        <span className="text-[11px] text-text-tertiary leading-tight line-clamp-1 mt-0.5 block">
           {app.description}
         </span>
       </div>
@@ -157,7 +157,7 @@ export function AppLauncher() {
                 title="Refresh apps from Vercel"
               >
                 <RefreshCw
-                  className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`}
+                  className={`w-4 h-4 text-text-tertiary ${syncing ? "animate-spin" : ""}`}
                 />
               </button>
             </div>
@@ -177,7 +177,7 @@ export function AppLauncher() {
                 title="Refresh apps from Vercel"
               >
                 <RefreshCw
-                  className={`w-4 h-4 text-[#6E6E73] ${syncing ? "animate-spin" : ""}`}
+                  className={`w-4 h-4 text-text-tertiary ${syncing ? "animate-spin" : ""}`}
                 />
               </button>
             </div>
@@ -212,8 +212,8 @@ export function AppLauncher() {
                 onClick={() => setCategory(cat.key)}
                 className={`px-3 py-[5px] text-[13px] font-medium rounded-full transition-all border-none cursor-pointer ${
                   category === cat.key
-                    ? "bg-[#1D1D1F] text-white"
-                    : "bg-black/[0.04] text-[#6E6E73] hover:bg-black/[0.08]"
+                    ? "bg-text-primary text-on-primary"
+                    : "bg-black/[0.04] text-text-tertiary hover:bg-black/[0.08]"
                 }`}
               >
                 {cat.label}

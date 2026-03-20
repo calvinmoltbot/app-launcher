@@ -9,6 +9,7 @@ interface AppIconProps {
   status?: "live" | "dev";
   size?: "sm" | "md" | "lg";
   showBadge?: boolean;
+  className?: string;
 }
 
 const sizes = {
@@ -23,6 +24,7 @@ export function AppIcon({
   status,
   size = "lg",
   showBadge = false,
+  className,
 }: AppIconProps) {
   const Icon = getIcon(iconName);
   const style = getSquircleStyle(color);
@@ -30,7 +32,7 @@ export function AppIcon({
 
   return (
     <div
-      className={`relative flex items-center justify-center squircle ${s.container}`}
+      className={`relative flex items-center justify-center squircle ${s.container} ${className ?? ""}`}
       style={style}
     >
       <Icon className={`${s.icon} text-white`} strokeWidth={1.5} />
