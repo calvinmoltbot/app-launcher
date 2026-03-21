@@ -228,16 +228,6 @@ export function AppDetail({ app }: AppDetailProps) {
                 Launch Application
                 <ArrowRight className="w-4 h-4" />
               </a>
-              {app.repo && (
-                <a
-                  href={app.repo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary font-bold hover:bg-primary/5 px-5 py-3 rounded-full transition-colors text-center no-underline text-sm"
-                >
-                  Repository
-                </a>
-              )}
             </motion.div>
           </div>
         </motion.div>
