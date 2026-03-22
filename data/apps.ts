@@ -244,6 +244,19 @@ export function getAppOverrides(): Map<string, Partial<App>> {
         order: 0,
       },
     ],
+    [
+      "letterboxd",
+      {
+        id: "letterboxd-tracker",
+        name: "Letterboxd Tracker",
+        description: "Film diary & watchlist",
+        icon: "Film",
+        color: "coral",
+        category: "creative",
+        pinned: false,
+        order: 17,
+      },
+    ],
   ]);
 }
 

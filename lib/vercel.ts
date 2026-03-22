@@ -106,7 +106,7 @@ async function fetchAllApps(
 
   // Fetch .launcher.json manifests in parallel for all discovered apps
   const manifestChecks = discovered.map(async (app) => {
-    app.manifest = await fetchManifest(app.subdomain);
+    app.manifest = await fetchManifest(app.subdomain, app.projectName);
     return app;
   });
   await Promise.all(manifestChecks);
@@ -115,12 +115,38 @@ async function fetchAllApps(
 }
 
 /**
- * Fetch .launcher.json from a deployed app.
- * Returns undefined if not found or on any error.
+ * Fetch .launcher.json from a project's GitHub repo via raw content.
+ * Tries common paths to handle monorepos (public/, frontend/public/, apps/web/public/).
+ * Falls back to fetching from the deployed URL.
  */
 async function fetchManifest(
-  subdomain: string
+  subdomain: string,
+  projectName: string
 ): Promise<LauncherManifest | undefined> {
+  const ghOwner = "calvinmoltbot";
+  const paths = [
+    "public/.launcher.json",
+    "frontend/public/.launcher.json",
+    "apps/web/public/.launcher.json",
+  ];
+
+  // Try GitHub raw content first
+  for (const path of paths) {
+    try {
+      const url = `https://raw.githubusercontent.com/${ghOwner}/${projectName}/main/${path}`;
+      const res = await fetch(url, {
+        next: { revalidate: 300 },
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && typeof data === "object" && data.name) return data;
+    } catch {
+      continue;
+    }
+  }
+
+  // Fallback: try deployed URL (works for Next.js apps with correct static serving)
   try {
     const url = `https://${subdomain}.warmwetcircles.com/.launcher.json`;
     const res = await fetch(url, {
@@ -128,7 +154,9 @@ async function fetchManifest(
       signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return undefined;
-    const data = await res.json();
+    const text = await res.text();
+    if (text.startsWith("<!")) return undefined; // SPA fallback HTML
+    const data = JSON.parse(text);
     if (data && typeof data === "object" && data.name) return data;
     return undefined;
   } catch {
