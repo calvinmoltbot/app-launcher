@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { getSquircleStyle } from "@/lib/colors";
 import { getIcon } from "@/lib/icon-map";
 
@@ -10,6 +11,7 @@ interface AppIconProps {
   size?: "sm" | "md" | "lg";
   showBadge?: boolean;
   className?: string;
+  layoutId?: string;
 }
 
 const sizes = {
@@ -25,16 +27,14 @@ export function AppIcon({
   size = "lg",
   showBadge = false,
   className,
+  layoutId,
 }: AppIconProps) {
   const Icon = getIcon(iconName);
   const style = getSquircleStyle(color);
   const s = sizes[size];
 
-  return (
-    <div
-      className={`relative flex items-center justify-center squircle ${s.container} ${className ?? ""}`}
-      style={style}
-    >
+  const content = (
+    <>
       <Icon className={`${s.icon} text-white`} strokeWidth={1.5} />
       {showBadge && status && (
         <div
@@ -43,6 +43,28 @@ export function AppIcon({
           }`}
         />
       )}
+    </>
+  );
+
+  if (layoutId) {
+    return (
+      <motion.div
+        layoutId={layoutId}
+        className={`relative flex items-center justify-center squircle ${s.container} ${className ?? ""}`}
+        style={style}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        {content}
+      </motion.div>
+    );
+  }
+
+  return (
+    <div
+      className={`relative flex items-center justify-center squircle ${s.container} ${className ?? ""}`}
+      style={style}
+    >
+      {content}
     </div>
   );
 }

@@ -53,6 +53,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  overscroll-behavior: contain;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text-primary);
@@ -72,5 +76,13 @@ body {
 
   .editorial-gradient {
     background: linear-gradient(135deg, #0058bc 0%, #0070eb 100%);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

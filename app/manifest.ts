@@ -7,6 +7,9 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Central hub for warmwetcircles.com apps",
     start_url: "/",
     display: "standalone",
+    display_override: ["standalone", "minimal-ui"],
+    orientation: "portrait",
+    categories: ["utilities", "productivity"],
     background_color: "#F5F5F7",
     theme_color: "#F5F5F7",
     icons: [
@@ -27,5 +30,27 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
-  };
+    shortcuts: [
+      {
+        name: "All Apps",
+        url: "/",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+          },
+        ],
+      },
+      {
+        name: "Creative",
+        url: "/?category=creative",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+          },
+        ],
+      },
+    ],
+  } as MetadataRoute.Manifest;
 }
