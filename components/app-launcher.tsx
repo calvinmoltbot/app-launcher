@@ -35,27 +35,34 @@ function BentoCard({
   return (
     <div
       onClick={() => onSelect(app)}
-      className={`group relative flex flex-col justify-between bg-surface-container-lowest rounded-[16px] p-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] cursor-pointer ${
+      className={`group relative flex flex-col justify-between bg-surface-container-lowest rounded-[16px] border border-black/[0.04] p-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] cursor-pointer ${
         isPinned ? "col-span-2 min-h-[140px]" : "min-h-[120px]"
       }`}
     >
-      {/* Status dot + Quick Launch */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5">
+      {/* Status badge + Quick Launch */}
+      <div className="absolute top-3 right-3 flex items-center gap-2">
         <a
           href={appUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-black/[0.06] text-text-tertiary hover:text-primary no-underline"
+          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-black/[0.08] text-text-tertiary hover:text-primary no-underline"
           title={`Open ${app.name}`}
         >
-          <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2} />
+          <ArrowUpRight className="w-4 h-4" strokeWidth={2} />
         </a>
-        <div
-          className={`w-[6px] h-[6px] rounded-full ${
-            app.status === "live" ? "bg-semantic-live" : "bg-semantic-dev"
-          }`}
-        />
+        <div className="flex items-center gap-1">
+          <div
+            className={`w-[7px] h-[7px] rounded-full ${
+              app.status === "live" ? "bg-semantic-live" : "bg-semantic-dev"
+            }`}
+          />
+          <span className={`text-[10px] font-medium uppercase tracking-wide ${
+            app.status === "live" ? "text-semantic-live" : "text-semantic-dev"
+          }`}>
+            {app.status}
+          </span>
+        </div>
       </div>
 
       {/* Icon */}
@@ -346,38 +353,52 @@ export function AppLauncher() {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <div className="grid grid-cols-4 gap-y-7 gap-x-2">
-              {filtered.map((app) => (
-                <div
-                  key={app.id}
-                  onClick={() => {
-                    if (navigator.vibrate) navigator.vibrate(10);
-                    openApp(app);
-                  }}
-                  className="flex flex-col items-center gap-[6px] cursor-pointer active:scale-95 transition-transform"
-                >
-                  <AppIcon
-                    iconName={app.icon}
-                    color={app.color}
-                    layoutId={`icon-${app.id}`}
-                  />
-                  <span className="text-[11px] font-normal text-text-primary text-center w-full leading-tight line-clamp-2 px-0.5">
-                    {app.name}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-text-tertiary">
+                <p className="text-[15px] font-medium">No apps found</p>
+                <p className="text-[13px] mt-1">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-y-7 gap-x-2">
+                {filtered.map((app) => (
+                  <div
+                    key={app.id}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(10);
+                      openApp(app);
+                    }}
+                    className="flex flex-col items-center gap-[6px] cursor-pointer active:scale-95 transition-transform"
+                  >
+                    <AppIcon
+                      iconName={app.icon}
+                      color={app.color}
+                      layoutId={`icon-${app.id}`}
+                    />
+                    <span className="text-[11px] font-normal text-text-primary text-center w-full leading-tight line-clamp-2 px-0.5">
+                      {app.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </main>
 
         {/* Desktop: Bento Grid */}
         <main className="flex-1 px-6 py-2 hidden md:block">
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-5 gap-3">
-              {filtered.map((app) => (
-                <BentoCard key={app.id} app={app} onSelect={openApp} />
-              ))}
-            </div>
+            {filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-text-tertiary">
+                <p className="text-[15px] font-medium">No apps found</p>
+                <p className="text-[13px] mt-1">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-3">
+                {filtered.map((app) => (
+                  <BentoCard key={app.id} app={app} onSelect={openApp} />
+                ))}
+              </div>
+            )}
           </div>
         </main>
 

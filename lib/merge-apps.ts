@@ -19,6 +19,24 @@ export async function getApps(): Promise<App[]> {
   const hidden = new Set(["sprout-api"]);
   const visible = discovered.filter((d) => !hidden.has(d.subdomain));
 
+  // Deduplicate by subdomain — multiple Vercel projects can share the same
+  // custom domain (e.g. "bv-web" and "bv" both pointing at bv.warmwetcircles.com).
+  // Keep the first entry that has a manifest, otherwise the first entry found.
+  const deduped = Array.from(
+    visible
+      .reduce((map, app) => {
+        const existing = map.get(app.subdomain);
+        if (!existing) {
+          map.set(app.subdomain, app);
+        } else if (!existing.manifest && app.manifest) {
+          // Prefer the entry with a manifest
+          map.set(app.subdomain, app);
+        }
+        return map;
+      }, new Map<string, (typeof visible)[number]>())
+      .values()
+  );
+
   const overrides = getAppOverrides();
   const maxStaticOrder = Math.max(
     ...Array.from(overrides.values()).map((o) => o.order ?? 0)
@@ -26,7 +44,7 @@ export async function getApps(): Promise<App[]> {
 
   let autoOrder = maxStaticOrder + 1;
 
-  const apps: App[] = visible.map((d) => {
+  const apps: App[] = deduped.map((d) => {
     const manifest = d.manifest;
     const override = overrides.get(d.subdomain);
 
@@ -54,14 +72,15 @@ export async function getApps(): Promise<App[]> {
       pinned,
       order,
       discovered: true,
-      // Extended fields from manifest
-      longDescription: manifest?.longDescription,
-      features: manifest?.features,
-      techStack: manifest?.techStack,
-      screenshots: manifest?.screenshots,
-      repo: manifest?.repo,
-      envVars: manifest?.envVars,
-      dependencies: manifest?.dependencies,
+      // Extended fields — manifest takes priority, then overrides
+      longDescription:
+        manifest?.longDescription ?? override?.longDescription,
+      features: manifest?.features ?? override?.features,
+      techStack: manifest?.techStack ?? override?.techStack,
+      screenshots: manifest?.screenshots ?? override?.screenshots,
+      repo: manifest?.repo ?? override?.repo,
+      envVars: manifest?.envVars ?? override?.envVars,
+      dependencies: manifest?.dependencies ?? override?.dependencies,
     };
   });
 
