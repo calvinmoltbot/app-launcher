@@ -13,7 +13,7 @@ interface AppDetailProps {
 }
 
 export function AppDetail({ app, onClose }: AppDetailProps) {
-  const appUrl = `https://${app.subdomain}.warmwetcircles.com`;
+  const appUrl = app.url ?? `https://${app.subdomain}.warmwetcircles.com`;
   const isOverlay = !!onClose;
 
   const backElement = isOverlay ? (
@@ -204,7 +204,7 @@ export function AppDetail({ app, onClose }: AppDetailProps) {
                     Domain
                   </h4>
                   <span className="text-sm font-medium text-text-primary">
-                    {app.subdomain}.warmwetcircles.com
+                    {app.url ? new URL(app.url).host : `${app.subdomain}.warmwetcircles.com`}
                   </span>
                 </div>
               </motion.div>

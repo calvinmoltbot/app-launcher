@@ -30,7 +30,7 @@ function BentoCard({
   onSelect: (app: App) => void;
 }) {
   const isPinned = app.pinned;
-  const appUrl = `https://${app.subdomain}.warmwetcircles.com`;
+  const appUrl = app.url ?? `https://${app.subdomain}.warmwetcircles.com`;
 
   return (
     <div

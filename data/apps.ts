@@ -10,6 +10,7 @@ export interface App {
   pinned: boolean;
   order: number;
   discovered?: boolean;
+  url?: string; // Override URL for local/non-Vercel apps
   // Extended fields from .launcher.json
   longDescription?: string;
   features?: string[];
@@ -548,6 +549,66 @@ export function getAppOverrides(): Map<string, Partial<App>> {
 }
 
 /**
+ * Local apps running on the Tailscale network (not deployed to Vercel).
+ * These are merged into the app list alongside Vercel-discovered apps.
+ */
+export function getLocalApps(): App[] {
+  return [
+    {
+      id: "home-dashboard-lab",
+      name: "Home Dashboard Lab",
+      description: "Smart home control surface",
+      subdomain: "home-dashboard",
+      url: "http://100.90.11.37:3006",
+      icon: "Home",
+      color: "indigo",
+      status: "dev",
+      category: "tools",
+      pinned: false,
+      order: 2,
+      discovered: false,
+      longDescription:
+        "A unified dashboard for Calvin's smart home — Hue lighting, HomePod audio, smart plugs, device discovery, and music rituals. Controls real hardware on the local network with truthful state.",
+      features: [
+        "Hue lighting control by room",
+        "HomePod TTS announcements",
+        "Music ritual launcher with Shortcuts bridge",
+        "AirPlay/RAOP target discovery",
+        "Smart plug control via Tapo",
+        "Network device inventory",
+      ],
+      techStack: ["Next.js 16", "Tailwind CSS 4", "node-airtunes2", "Tapo API", "Hue API"],
+      repo: "calvinmoltbot/home-dashboard-lab",
+    },
+    {
+      id: "command-center",
+      name: "Command Center",
+      description: "OpenClaw agent hub",
+      subdomain: "command-center",
+      url: "http://100.90.11.37:3020",
+      icon: "Cpu",
+      color: "indigo",
+      status: "live",
+      category: "productivity",
+      pinned: false,
+      order: 3,
+      discovered: false,
+      longDescription:
+        "Task management and intelligence hub for the OpenClaw agent system. Projects, routines, research briefs, daily sweeps, agent lifecycle, and API usage tracking.",
+      features: [
+        "Project and task management",
+        "Daily intelligence sweeps reader",
+        "Research briefs library",
+        "Agent registry and routine scheduling",
+        "API usage and cost tracking",
+      ],
+      techStack: ["Next.js 16", "SQLite", "Tailwind CSS 4", "shadcn/ui"],
+      repo: "calvinmoltbot/command-center",
+    },
+  ];
+}
+
+/**
  * Fallback static app list — used when Vercel API is unavailable.
  * Built from the overrides map so there's a single source of truth.
  */
@@ -575,6 +636,9 @@ export function getStaticApps(): App[] {
       ...(override.techStack && { techStack: override.techStack }),
     });
   });
+
+  // Include local apps in the fallback too
+  apps.push(...getLocalApps());
 
   return apps.sort((a, b) => a.order - b.order);
 }

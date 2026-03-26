@@ -1,4 +1,4 @@
-import { type App, getAppOverrides, getStaticApps } from "@/data/apps";
+import { type App, getAppOverrides, getStaticApps, getLocalApps } from "@/data/apps";
 import { discoverVercelApps } from "@/lib/vercel";
 
 /**
@@ -83,6 +83,14 @@ export async function getApps(): Promise<App[]> {
       dependencies: manifest?.dependencies ?? override?.dependencies,
     };
   });
+
+  // Merge in local (non-Vercel) apps
+  const localApps = getLocalApps();
+  for (const local of localApps) {
+    if (!apps.some((a) => a.id === local.id)) {
+      apps.push(local);
+    }
+  }
 
   return apps.sort((a, b) => a.order - b.order);
 }
